@@ -6,22 +6,41 @@
   <title>Lucky Wheel</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=Angkor&display=swap');
+
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 30px;
       padding: 0 15px;
-     
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
     }
 
     canvas {
       width: 100%;
-      max-width: 500px;
       height: auto;
       border: 5px solid #444;
       border-radius: 50%;
       transition: transform 4s ease-out;
+    }
+
+    #pointer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -10%) rotate(90deg);
+      width: 0;
+      height: 0;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-left: 50px solid black;
+      z-index: 10;
     }
 
     button {
@@ -42,13 +61,13 @@
       border-radius: 20px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
       z-index: 999;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: bold;
       color: #28a745;
       opacity: 0;
       width: 90%;
       max-width: 400px;
-      transition: opacity 1s, transform 1s;
+      transition: opacity 1s ease, transform 1s ease;
     }
 
     #prizeImage {
@@ -58,29 +77,19 @@
       border-radius: 10px;
     }
 
-    #pointer {
-      position: absolute;
-      top: 55%;
-      left: 44%;
-      transform: translate(-50%, -50%) rotate(90deg);
-      width: 0;
-      height: 0;
-      border-top: 20px solid transparent;
-      border-bottom: 20px solid transparent;
-      border-left: 50px solid black;
-      z-index: 10;
-    }
-
-    .position-relative {
-      max-width: 500px;
-      margin: auto;
-      padding-right: 60px;
-      position: relative;
-    }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 1rem;
+    }
+
+    .text-dark {
+      font-family: "Alfa Slab One", serif;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    #closePopup {
+      font-family: "Angkor", serif;
     }
 
     table {
@@ -98,20 +107,19 @@
       }
 
       #congratsPopup {
-        font-size: 20px;
+        font-size: 18px;
       }
 
       #pointer {
         border-left: 30px solid black;
         border-top: 15px solid transparent;
         border-bottom: 15px solid transparent;
-        bottom: 0;
       }
     }
 
     @media (max-width: 480px) {
       h1 {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
       }
 
       table th,
@@ -120,34 +128,21 @@
       }
 
       #congratsPopup {
-        padding: 20px 10px;
+        padding: 20px 15px;
       }
 
       button {
         font-size: 14px;
       }
     }
-    .text-dark {
-      font-family: "Alfa Slab One", serif;
-      font-weight: 400;
-      font-style: normal;
-  
-    }
-    #closePopup{
-      font-family: "Angkor", serif;
-      font-weight: 400;
-      font-style: normal;
-
-    }
-   
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAUjlHjzRERgX1K6bwkj_tR-hMzkrUpIkFLg&s" class="img-fluid" alt="">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAUjlHjzRERgX1K6bwkj_tR-hMzkrUpIkFLg&s" class="img-fluid" alt="Banner">
     <h1 class="text-center mb-4"><span class="text-dark">KHL688 PHONE STORE</span></h1>
 
-    <div class="position-relative d-flex justify-content-center">
+    <div class="wheel-wrapper">
       <canvas id="wheelCanvas" width="500" height="500"></canvas>
       <div id="pointer"></div>
     </div>
@@ -158,14 +153,15 @@
       <div class="col-12">
         <h3>🎁 រង្វាន់ឈ្នះរបស់អ្នក</h3>
         <table class="table table-bordered table-striped">
-          <thead><tr><th>#</th><th>Prize</th><th>Image</th><th>Time</th></tr></thead>
+          <thead>
+            <tr><th>#</th><th>Prize</th><th>Image</th><th>Time</th></tr>
+          </thead>
           <tbody id="prizeTableBody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- Popup -->
   <div id="congratsPopup" class="text-center">
     🎉 អបអរសាទរ! អ្នកឈ្នះរង្វាន់៖ <span id="prizeText"></span><br>
     <img id="prizeImage" src="" alt="Prize Image" class="img-fluid" />
@@ -173,7 +169,6 @@
     <button id="closePopup" class="btn btn-danger">Close</button>
   </div>
 
-  <!-- Sounds -->
   <audio id="spinSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_275a0fcfaf.mp3"></audio>
   <audio id="winSound" src="https://cdn.pixabay.com/audio/2021/08/04/audio_79d593f7c9.mp3"></audio>
 
@@ -184,7 +179,7 @@
     const winSound = document.getElementById("winSound");
 
     const segments = [
-      { name: 'សោមទូរស័ព្ទ iPhone គ្រប់សេរី ១', img: 'https://djd1xqjx2kdnv.cloudfront.net/photos/36/45/486053_11037_XXL.jpg', prob: 7 },
+      { name: 'ស្រោមទូរស័ព្ទគ្រប់សេរី ១', img: 'https://djd1xqjx2kdnv.cloudfront.net/photos/36/45/486053_11037_XXL.jpg', prob: 7 },
       { name: 'ឆ្នាំងសាកហ្ស៊ីន', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSlOZH98g7c4-YJG9fdxkTvnxb0qbHIcLjwQ&s', prob: 5 },
       { name: 'កាសហ្ស៊ីន', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZd9OAIEltTu5RE3zMzk4rT95l30Jgb4mjq-myNCCXKhOycFc6qByrR5jozJfC3cDZhkU&usqp=CAU', prob: 4 },
       { name: 'Samsung S10 1គ្រឿង', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROQ5FH3-NxAMdf7kZjn_mBVRvTkO9RfODvYw&s', prob: 0.5 },
@@ -201,7 +196,7 @@
       { name: 'ទូរសព្ទ័ D52 1គ្រឿង', img: 'https://m.media-amazon.com/images/I/61bZ6+F9vZL._AC_UF350,350_QL80_.jpg', prob: 7 },
     ];
 
-    const colors = ['#ffe9be', 'gold', '#ffe9be', 'gold', '#ffe9be', 'gold', '#ffe9be', 'gold', '#ffe9be', 'gold', '#ffe9be', 'gold', '#ffe9be', 'gold', '#ffe9be'];
+    const colors = ['#ffe9be', 'gold'];
 
     function drawWheel(rotation = 0) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -213,16 +208,14 @@
         ctx.closePath();
         ctx.fillStyle = colors[i % colors.length];
         ctx.fill();
-
         ctx.strokeStyle = "#000";
-        ctx.lineWidth = 2;
         ctx.stroke();
 
         ctx.save();
         ctx.translate(250, 250);
         ctx.rotate(angle * (i + 0.5) + rotation);
         ctx.fillStyle = "#000";
-        ctx.font = "bold 14px Arial, sans-serif";
+        ctx.font = "bold 13px Arial";
         ctx.textAlign = "center";
         ctx.fillText(segments[i].name, 130, 0);
         ctx.restore();
@@ -246,7 +239,7 @@
       const index = pickPrize();
       const anglePerSegment = 360 / segments.length;
       const randomSpin = 360 * 5;
-      const finalAngle = randomSpin + (90 - index * anglePerSegment - anglePerSegment / 2); // Adjust for right-side pointer
+      const finalAngle = randomSpin + (90 - index * anglePerSegment - anglePerSegment / 2);
 
       spinSound.play();
       canvas.style.transform = `rotate(${finalAngle}deg)`;
@@ -257,8 +250,9 @@
         document.getElementById("prizeText").textContent = prize.name;
         document.getElementById("prizeImage").src = prize.img;
 
-        document.getElementById("congratsPopup").style.display = "block";
-        document.getElementById("congratsPopup").style.opacity = 1;
+        const popup = document.getElementById("congratsPopup");
+        popup.style.display = "block";
+        popup.style.opacity = 1;
 
         const prizeTable = document.getElementById("prizeTableBody");
         const newRow = document.createElement("tr");
