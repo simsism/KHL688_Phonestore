@@ -7,21 +7,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=Angkor&display=swap');
-
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 30px;
       padding: 0 15px;
     }
-
     .wheel-wrapper {
       position: relative;
       width: 100%;
       max-width: 400px;
       margin: auto;
     }
-
     canvas {
       width: 100%;
       height: auto;
@@ -29,7 +26,6 @@
       border-radius: 50%;
       transition: transform 4s ease-out;
     }
-
     #pointer {
       position: absolute;
       top: 50%;
@@ -42,14 +38,12 @@
       border-left: 50px solid black;
       z-index: 10;
     }
-
     button {
       margin-top: 20px;
       padding: 10px 25px;
       font-size: 18px;
       width: auto;
     }
-
     #congratsPopup {
       display: none;
       position: fixed;
@@ -69,71 +63,40 @@
       max-width: 400px;
       transition: opacity 1s ease, transform 1s ease;
     }
-
     #prizeImage {
       max-width: 100%;
       height: auto;
       margin-top: 10px;
       border-radius: 10px;
     }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 1rem;
     }
-
     .text-dark {
       font-family: "Alfa Slab One", serif;
-      font-weight: 400;
-      font-style: normal;
     }
-
     #closePopup {
       font-family: "Angkor", serif;
     }
-
     table {
       font-size: 14px;
     }
-
     @media (max-width: 768px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      button {
-        font-size: 16px;
-        padding: 8px 20px;
-      }
-
-      #congratsPopup {
-        font-size: 18px;
-      }
-
+      h1 { font-size: 1.5rem; }
+      button { font-size: 16px; padding: 8px 20px; }
+      #congratsPopup { font-size: 18px; }
       #pointer {
         border-left: 30px solid black;
         border-top: 15px solid transparent;
         border-bottom: 15px solid transparent;
       }
     }
-
     @media (max-width: 480px) {
-      h1 {
-        font-size: 1.3rem;
-      }
-
-      table th,
-      table td {
-        font-size: 12px;
-      }
-
-      #congratsPopup {
-        padding: 20px 15px;
-      }
-
-      button {
-        font-size: 14px;
-      }
+      h1 { font-size: 1.3rem; }
+      table th, table td { font-size: 12px; }
+      #congratsPopup { padding: 20px 15px; }
+      button { font-size: 14px; }
     }
   </style>
 </head>
@@ -185,7 +148,6 @@
       { name: 'Samsung S10 1គ្រឿង', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROQ5FH3-NxAMdf7kZjn_mBVRvTkO9RfODvYw&s', prob: 0.5 },
       { name: 'iPad Air 2 16g', img: 'https://i5.walmartimages.com/seo/Restored-2014-Apple-iPad-air-Wi-Fi-64-GB-Gold-2nd-Generation-Refurbished_4c90df39-16bc-4ef2-b183-463134147dd9.6862408139e3d57dca7824ce03fdc8e4.jpeg', prob: 1 },
       { name: 'iPhone 15 Pro Max', img: 'https://cdn.dsmcdn.com/mnresize/1200/1800/ty1002/product/media/images/prod/PIM/20230921/07/9ad54364-69dd-45fc-9a54-562901b37704/1_org_zoom.jpg', prob: 0.1 },
-      { name: 'Discount 30%', img: 'https://cdn-icons-png.flaticon.com/512/1170/1170576.png', prob: 0.4 },
       { name: 'Power Bank​ 10000 mah', img: 'https://m.media-amazon.com/images/I/61BBj1YOHEL._AC_UF894,1000_QL80_.jpg', prob: 5 },
       { name: 'កាស​ Airpod 2', img: 'https://khmersamnang.com/wp-content/uploads/2021/12/AirPods-with-Charging.jpg', prob: 3 },
       { name: 'Nokia 8110', img: 'https://fdn2.gsmarena.com/vv/bigpic/nokia-8110-4g-.jpg', prob: 5 },
@@ -235,7 +197,15 @@
       return segments.length - 1;
     }
 
-    document.getElementById("spinButton").addEventListener("click", () => {
+    const spinButton = document.getElementById("spinButton");
+    const prizeTable = document.getElementById("prizeTableBody");
+
+    spinButton.addEventListener("click", () => {
+      if (localStorage.getItem("hasSpun") === "true") {
+        alert("អ្នកបានបង្វិលរួចហើយ។ អ្នកមិនអាចបង្វិលម្ដងទៀតបានទេ។");
+        return;
+      }
+
       const index = pickPrize();
       const anglePerSegment = 360 / segments.length;
       const randomSpin = 360 * 5;
@@ -254,10 +224,14 @@
         popup.style.display = "block";
         popup.style.opacity = 1;
 
-        const prizeTable = document.getElementById("prizeTableBody");
         const newRow = document.createElement("tr");
         newRow.innerHTML = `<td>${prizeTable.rows.length + 1}</td><td>${prize.name}</td><td><img src="${prize.img}" width="80"/></td><td>${new Date().toLocaleString()}</td>`;
         prizeTable.appendChild(newRow);
+
+        // Disable further spins
+        localStorage.setItem("hasSpun", "true");
+        spinButton.disabled = true;
+        spinButton.textContent = "បានបង្វិលរួច";
       }, 4000);
     });
 
@@ -266,6 +240,14 @@
       popup.style.opacity = 0;
       setTimeout(() => popup.style.display = 'none', 500);
     });
+
+    // Disable button if already spun
+    window.onload = () => {
+      if (localStorage.getItem("hasSpun") === "true") {
+        spinButton.disabled = true;
+        spinButton.textContent = "បានបង្វិលរួច";
+      }
+    };
   </script>
 </body>
 </html>
